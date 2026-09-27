@@ -190,4 +190,4 @@ reflect these decisions.
 | Notifications (FR-3.9) | Web push / in-app, delivery mechanism TBD | Needs a scheduler (e.g. a lightweight cron/worker in the Go service) that checks upcoming Planned Entries. |
 | Future | AI chat feature | Not designed yet; data model keeps all tables `user_id`-scoped so a `conversations`/`messages` area can be added later without reshaping existing tables. |
 
-See `docs/data-model.md` for the concrete schema.
+See `architecture/` for the concrete schema, data flows, and API design.
