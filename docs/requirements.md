@@ -68,6 +68,9 @@ through weekly/monthly summaries.
   window, generated on demand rather than infinitely stored).
 - FR-3.8: User can see, for a given day/week, the list of planned activities
   and their total planned time, optionally grouped by Group.
+- FR-3.9: The system sends a notification a configurable short time before a
+  Planned Entry's start time (default e.g. 5–10 minutes prior); the user can
+  adjust or disable this per entry or globally.
 
 ### 4.4 Recording Activities (Tracking Screen)
 - FR-4.1: A dedicated "Record" screen lets the user start tracking an
@@ -77,8 +80,10 @@ through weekly/monthly summaries.
   display and a Stop control.
 - FR-4.3: Stopping the timer creates a Time Log with start time, end time, and
   computed duration.
-- FR-4.4: Only one activity can be actively running at a time (starting a new
-  one prompts to stop/replace the current one, or the app auto-stops it).
+- FR-4.4: Multiple activities can be tracked concurrently — starting a new
+  timer does not stop any other currently running timer. The recording
+  screen lists all currently running timers together, each with its own
+  Stop control.
 - FR-4.5: User can manually add/edit a Time Log after the fact (retroactive
   logging) with a custom start/end time or duration, for cases where they
   forgot to start the timer.
@@ -111,9 +116,11 @@ through weekly/monthly summaries.
 - FR-6.1: All timestamps are stored with enough precision to compute
   durations and handle the user's local timezone correctly, including DST
   transitions.
-- FR-6.2: Basic data export (e.g. CSV/JSON) of Time Logs for a date range.
-- FR-6.3: User authentication/login (single user, but app should not be
-  wide open) — exact mechanism to be decided in technical design.
+- FR-6.2: User authentication/login is required (single-user account) since
+  data is synced via a backend and accessed from multiple devices; exact
+  mechanism to be decided in technical design.
+- FR-6.3: Data export (CSV/JSON) is out of scope for this iteration — see
+  Section 7.
 
 ## 5. Non-Functional Requirements
 
@@ -125,35 +132,48 @@ through weekly/monthly summaries.
   timer is running (timer state must survive app restarts).
 - NFR-4: Summary/report queries over a month of data should load in <1s.
 
-## 6. Out of Scope (for this iteration)
+## 6. Decisions
+
+These were open questions, now resolved and reflected in the requirements
+above:
+
+| Question | Decision |
+|---|---|
+| Platform for v1 | **Web app** (responsive, usable on phone browser and desktop). |
+| Overlapping Time Logs | **Allowed.** The user may have more than one activity logged/running with overlapping time ranges (e.g. "commute" + "podcast"). FR-4.4 is updated accordingly (see below). |
+| Time-budget goals vs. scheduled plans | **Scheduled plans only for v1** (specific date/time entries, with recurrence). Standalone weekly/monthly time budgets not tied to a slot are out of scope for now. |
+| Multi-device sync | **Cloud sync with login.** The app requires an account; data is stored server-side and accessible from any device. |
+| Reminders/notifications | **Included in v1** — basic notification shortly before a planned entry's start time. |
+| Offline support | **Not required.** App assumes online connectivity; no offline queue/conflict handling needed. |
+| Data export | **Deferred**, not required for v1. |
+| Default recurring-edit scope | **"This occurrence only"** is the default/first offered option when editing or deleting an occurrence of a recurring plan (FR-3.5/3.6). |
+
+All affected requirements above (FR-3.9, FR-4.4, FR-6.2, FR-6.3) already
+reflect these decisions.
+
+## 7. Out of Scope (for this iteration)
 
 - Multi-user collaboration or sharing activities/plans with others.
 - Third-party calendar sync (Google Calendar, Outlook) — may be considered
   later.
-- Notifications/reminders for planned activities — candidate for a later
-  iteration.
+- Offline recording/sync.
+- Data export (CSV/JSON).
+- Standalone time-budget goals independent of scheduled plans.
 - Gamification (streaks, badges).
-
-## 7. Open Questions
-
-1. Should overlapping Time Logs be allowed (e.g. logging two things at once,
-   like "commute" + "listening to podcast"), or strictly one active/logged
-   activity at a time?
-2. Should Planned Entries support a target duration goal per week/month (e.g.
-   "Sport: 3h/week") independent of specific calendar slots, in addition to
-   scheduled entries?
-3. What platform(s) first — mobile app, web app, or both from the start?
-4. Any need for reminders/notifications before a planned activity starts?
 
 ## 8. Suggested Implementation Plan (high level)
 
 1. **Data model & backend**: Groups, Activity Types, Recurrence Rules,
-   Planned Entries (materialized occurrences), Time Logs. Basic CRUD APIs.
-2. **Recording screen**: start/stop timer, quick-start list, manual entry.
+   Planned Entries (materialized occurrences), Time Logs (supporting
+   overlapping ranges), user accounts/auth. Basic CRUD APIs.
+2. **Recording screen**: start/stop timer(s) — supports multiple concurrent
+   running activities — quick-start list, manual entry.
 3. **Planning screen**: calendar/agenda view, create/edit one-off and
-   recurring plans.
+   recurring plans (default edit scope: this occurrence only).
 4. **Group/Activity management screens**: CRUD for Groups and Activity
    Types.
-5. **Summary/reports screen**: day/week/month aggregation, planned-vs-actual
+5. **Reminders**: scheduled notification before a Planned Entry's start
+   time.
+6. **Summary/reports screen**: day/week/month aggregation, planned-vs-actual
    comparison, charts.
-6. **Polish**: export, timezone/DST handling, offline-safe timer state.
+7. **Polish**: timezone/DST handling, auth hardening.
