@@ -12,10 +12,12 @@ summaries.
 
 ## Current status
 
-**Design phase — no application code yet.** The repo currently holds
-requirements and architecture docs plus one SQL migration. Do not assume
-a running app, package manifest, or test suite exists; check before
-referencing one.
+The Go backend (`backend/`) implements Groups and Activity Types
+(`architecture/api-design.md` §3.1–3.2): Clerk JWT auth, the Clerk
+webhook, and Postgres access via pgx/sqlc. Planning, Recording, and
+Summary endpoints, and the TanStack Start frontend, are not built yet —
+check `architecture/api-design.md` for what's specified vs. implemented
+before assuming an endpoint exists.
 
 ## Where things live
 
@@ -50,7 +52,22 @@ referencing one.
   an already-applied migration), and update `architecture/data-model.md`
   to match.
 - Commit message format: see `CONTRIBUTING.md`.
-- No build/lint/test commands exist yet. Once a backend or frontend
-  project is scaffolded, add the actual commands here (e.g. `go build
-  ./...`, `go test ./...`, the frontend's `npm run` scripts) so future
-  agents don't have to rediscover them.
+
+## Backend build/lint/test
+
+Run from `backend/` (see `backend/README.md` for env vars and full detail):
+
+```sh
+go build ./...
+go vet ./...
+gofmt -l .                     # should print nothing
+go test ./internal/auth/...    # unit tests, no database needed
+DATABASE_URL="postgres://postgres:postgres@localhost:5432/tm_dev?sslmode=disable" go test ./...  # full suite
+```
+
+Query files live in `backend/db/query/*.sql`; after changing one or
+`migrations/`, regenerate the committed sqlc code with `go tool sqlc
+generate` (run from `backend/`).
+
+No frontend project exists yet — add its commands here once TanStack
+Start is scaffolded.
