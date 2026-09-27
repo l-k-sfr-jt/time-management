@@ -117,8 +117,8 @@ through weekly/monthly summaries.
   durations and handle the user's local timezone correctly, including DST
   transitions.
 - FR-6.2: User authentication/login is required (single-user account) since
-  data is synced via a backend and accessed from multiple devices; exact
-  mechanism to be decided in technical design.
+  data is synced via a backend and accessed from multiple devices; handled by
+  Clerk (see Section 9, Technical Stack).
 - FR-6.3: Data export (CSV/JSON) is out of scope for this iteration — see
   Section 7.
 
@@ -177,3 +177,17 @@ reflect these decisions.
 6. **Summary/reports screen**: day/week/month aggregation, planned-vs-actual
    comparison, charts.
 7. **Polish**: timezone/DST handling, auth hardening.
+
+## 9. Technical Stack
+
+| Layer | Choice | Notes |
+|---|---|---|
+| Backend | **Go** (REST API) | Single service for v1; router TBD (e.g. chi/std `net/http`). |
+| Database | **Postgres (Neon)** | Serverless Postgres, already provisioned in this environment. |
+| DB access | **pgx** + plain SQL / `sqlc` | Avoids heavy ORM; keeps recurrence-rule and time-range queries explicit and reviewable. |
+| Frontend | **TanStack Start** (React) | File-based routing, SSR, type-safe data loading via TanStack Router/Query. |
+| Auth | **Clerk** | Managed auth + authorization (sessions, user management); Go backend verifies Clerk session JWTs, frontend uses Clerk's React SDK. |
+| Notifications (FR-3.9) | Web push / in-app, delivery mechanism TBD | Needs a scheduler (e.g. a lightweight cron/worker in the Go service) that checks upcoming Planned Entries. |
+| Future | AI chat feature | Not designed yet; data model keeps all tables `user_id`-scoped so a `conversations`/`messages` area can be added later without reshaping existing tables. |
+
+See `docs/data-model.md` for the concrete schema.
