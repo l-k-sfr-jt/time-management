@@ -12,12 +12,25 @@ summaries.
 
 ## Current status
 
-The Go backend (`backend/`) implements Groups and Activity Types
-(`architecture/api-design.md` §3.1–3.2): Clerk JWT auth, the Clerk
-webhook, and Postgres access via pgx/sqlc. Planning, Recording, and
-Summary endpoints, and the TanStack Start frontend, are not built yet —
-check `architecture/api-design.md` for what's specified vs. implemented
-before assuming an endpoint exists.
+**This branch (`learn/go-backend-fundamentals`) intentionally has no
+`backend/` code.** It's a guided-learning rebuild: the repo owner is new
+to Go and is rebuilding the backend themselves, one concept at a time,
+following `lessons/`. A previously working implementation (Groups +
+Activity Types, Clerk auth, pgx/sqlc, tests — see
+`architecture/api-design.md` §3.1–3.2) exists for reference on branch
+`claude/time-management-app-requirements-dgcxay`, but should not be
+copied wholesale into this branch — the point is writing it from scratch.
+
+## Lessons
+
+- `lessons/README.md` — the curriculum: what each lesson covers and in
+  what order. Start there.
+- An AI agent asked to "help with the next lesson" should teach and
+  review, not write the solution unprompted — see
+  `lessons/README.md`'s "How sessions work" for the expected mode
+  (explain the concept, assign a task, let the human write the code,
+  review it, only show a reference solution if asked or the human is
+  stuck after a real attempt).
 
 ## Where things live
 
@@ -55,19 +68,9 @@ before assuming an endpoint exists.
 
 ## Backend build/lint/test
 
-Run from `backend/` (see `backend/README.md` for env vars and full detail):
+No `backend/` module exists yet on this branch — lesson 01 creates it.
+Once it exists, add the real commands here (they'll look like the ones
+on `claude/time-management-app-requirements-dgcxay`: `go build ./...`,
+`go vet ./...`, `gofmt -l .`, `go test ./...`) so this stays accurate.
 
-```sh
-go build ./...
-go vet ./...
-gofmt -l .                     # should print nothing
-go test ./internal/auth/...    # unit tests, no database needed
-DATABASE_URL="postgres://postgres:postgres@localhost:5432/tm_dev?sslmode=disable" go test ./...  # full suite
-```
-
-Query files live in `backend/db/query/*.sql`; after changing one or
-`migrations/`, regenerate the committed sqlc code with `go tool sqlc
-generate` (run from `backend/`).
-
-No frontend project exists yet — add its commands here once TanStack
-Start is scaffolded.
+No frontend project exists yet either.
